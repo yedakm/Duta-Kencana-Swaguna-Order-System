@@ -1,107 +1,257 @@
 @php
+
 $prefix = 'guest';
+
 if (auth()->check()) {
+
     $prefix = auth()->user()->role === 'admin' ? 'admin' : 'member';
+
 }
+
 @endphp
 
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2c3e50;">
+
+
+<style>
+
+    /* Navbar dengan Background Hijau Cerah agar Teks Hitam Jelas */
+
+    .navbar-green-custom {
+
+        background-color: #20c997; /* Hijau Teal/Mint Cerah */
+
+        /* Opsi lain jika ingin hijau daun: background-color: #4ade80; */
+
+        
+
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+        font-family: 'Poppins', sans-serif;
+
+    }
+
+
+
+    /* Style Tulisan Menu (Hitam) */
+
+    .nav-link-black {
+
+        color: #000000 !important; /* Hitam Pekat */
+
+        font-weight: 600;
+
+        font-size: 0.95rem;
+
+        transition: all 0.3s ease;
+
+    }
+
+
+
+    /* Efek Hover: Berubah Putih atau Hijau Tua */
+
+    .nav-link-black:hover, .nav-link-black.active {
+
+        color: #144431 !important; /* Hijau Gelap saat hover */
+
+        transform: translateY(-1px);
+
+    }
+
+
+
+    /* Tombol Login (Outline Hitam) */
+
+    .btn-login-black {
+
+        border: 2px solid #000;
+
+        color: #000;
+
+        font-weight: 700;
+
+        border-radius: 50px;
+
+        padding: 8px 30px;
+
+        background: transparent;
+
+        transition: 0.3s;
+
+    }
+
+
+
+    .btn-login-black:hover {
+
+        background-color: #000;
+
+        color: #20c997; /* Teks berubah jadi hijau background */
+
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+    }
+
+</style>
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light navbar-green-custom sticky-top py-3">
+
     <div class="container">
-        @auth
-            @if (Auth::user()->role === 'admin')
-                <a class="navbar-brand fw-bold" href="{{ route('admin.dashboard') }}">
-                    <i class="fas fa-leaf me-2"></i>DeliGreen Admin
-                </a>
-            @else
-                <a class="navbar-brand fw-bold" href="{{ route('member.dashboard') }}">
-                    <i class="fas fa-leaf me-2"></i>DeliGreen
-                </a>
-            @endif
-        @endauth
 
-        @guest
-            <a class="navbar-brand fw-bold" href="{{ route('welcome') }}">
-                <i class="fas fa-leaf me-2"></i>DeliGreen
-            </a>
-        @endguest
+        
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+        <a class="navbar-brand fw-bold d-flex align-items-center text-dark" style="font-size: 1.3rem;"
+
+           href="{{ route(auth()->check() && auth()->user()->role === 'admin' ? 'admin.dashboard' : (auth()->check() ? 'member.dashboard' : 'welcome')) }}">
+
+            <i class="fas fa-leaf me-2 fs-3"></i> 
+
+            
+
+            <span>PT Duta Kencana Swaguna</span>
+
+        </a>
+
+
+
+        <button class="navbar-toggler border-2 border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+
             <span class="navbar-toggler-icon"></span>
+
         </button>
 
+
+
         <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item mx-1">
-                    <a class="nav-link py-2 px-3 rounded {{ request()->routeIs('guest.foods.*') ? 'active bg-white text-dark' : '' }}"
-                        href="{{ route($prefix . '.foods.index') }}">
-                        <i class="fas fa-utensils me-1"></i> Menu
+
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+
+                <li class="nav-item mx-2">
+
+                    <a class="nav-link nav-link-black {{ request()->routeIs('guest.foods.*') ? 'active' : '' }}" href="{{ route($prefix . '.foods.index') }}">
+
+                        Menu Sehat
+
                     </a>
-                </li>
-                <li class="nav-item mx-1">
-                    <a class="nav-link py-2 px-3 rounded {{ request()->routeIs('guest.categories.*') ? 'active bg-white text-dark' : '' }}"
-                        href="{{ route($prefix . '.categories.index') }}">
-                        <i class="fas fa-tags me-1"></i> Categories
-                    </a>
+
                 </li>
 
-                @if(auth()->check() && auth()->user()->role === 'admin')
-                <li class="nav-item mx-1">
-                    <a class="nav-link py-2 px-3 rounded {{ request()->routeIs('admin.users.*') ? 'active bg-white text-dark' : '' }}"
-                        href="{{ route('admin.users.index') }}">
-                        <i class="fas fa-users me-1"></i> Users
+                <li class="nav-item mx-2">
+
+                    <a class="nav-link nav-link-black {{ request()->routeIs('guest.categories.*') ? 'active' : '' }}" href="{{ route($prefix . '.categories.index') }}">
+
+                        Kategori
+
                     </a>
+
                 </li>
-                @endif
+
+
 
                 @auth
-                <li class="nav-item mx-1">
-                    <a class="nav-link py-2 px-3" href="{{ route($prefix . '.orders.index') }}">
-                        <i class="fas fa-shopping-cart me-1"></i> Order
-                    </a>
-                </li>
-                @if (auth()->user()->role === 'admin')
-                <li class="nav-item mx-1">
-                    <a class="nav-link py-2 px-3" href="{{ route($prefix . '.reports.index') }}">
-                        <i class="fas fa-chart-line ms-1"></i> Reports
-                    </a>
-                </li>
-                @endif
+
+                    @if(auth()->user()->role === 'admin')
+
+                    <li class="nav-item mx-2">
+
+                        <a class="nav-link nav-link-black" href="{{ route('admin.users.index') }}">Users</a>
+
+                    </li>
+
+                    <li class="nav-item mx-2">
+
+                        <a class="nav-link nav-link-black" href="{{ route($prefix . '.reports.index') }}">Laporan</a>
+
+                    </li>
+
+                    @endif
+
+                    <li class="nav-item mx-2">
+
+                        <a class="nav-link nav-link-black" href="{{ route($prefix . '.orders.index') }}">Pesanan</a>
+
+                    </li>
+
                 @endauth
+
             </ul>
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
+
                 @auth
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center text-white" id="userDropdown"
-                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle fs-4 me-1"></i>{{ Auth::user()->name }}
-                        <span class="d-none d-lg-inline ms-1"></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li>
-                            <a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+
+                    @if(auth()->user()->role !== 'admin')
+
+                    <li class="nav-item me-2">
+
+                        <a href="{{ route($prefix . '.orders.index') }}" class="position-relative text-dark fs-5">
+
+                            <i class="bi bi-cart-fill"></i>
+
+                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-dark border border-light rounded-circle" style="width:10px; height:10px;"></span>
+
+                        </a>
+
+                    </li>
+
+                    @endif
+
+
+
+                    <li class="nav-item dropdown">
+
+                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center text-dark fw-bold" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <div class="bg-dark text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 35px; height: 35px;">
+
+                                {{ substr(Auth::user()->name, 0, 1) }}
+
+                            </div>
+
+                            <span class="d-none d-lg-block">{{ Auth::user()->name }}</span>
+
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2">
+
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
+
+                        </ul>
+
+                    </li>
+
                 @else
-                <li class="nav-item">
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('register.page') }}">Register</a>
-                </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link fw-bold text-dark" href="{{ route('register.page') }}">Daftar</a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <button type="button" class="btn btn-login-black" data-bs-toggle="modal" data-bs-target="#loginModal">
+
+                            Masuk
+
+                        </button>
+
+                    </li>
+
                 @endauth
+
             </ul>
+
         </div>
+
     </div>
+
 </nav>
