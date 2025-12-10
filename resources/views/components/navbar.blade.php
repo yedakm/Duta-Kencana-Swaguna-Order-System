@@ -106,8 +106,7 @@ if (auth()->check()) {
 
            href="{{ route(auth()->check() && auth()->user()->role === 'admin' ? 'admin.dashboard' : (auth()->check() ? 'member.dashboard' : 'welcome')) }}">
 
-            <i class="fas fa-leaf me-2 fs-3"></i> 
-
+<img src="{{ asset('storage/Logo.png') }}" alt="Logo PT Duta Kencana Swaguna" style="height: 40px;" class="me-2">
             
 
             <span>PT Duta Kencana Swaguna</span>
