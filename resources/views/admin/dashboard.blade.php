@@ -5,7 +5,7 @@
 
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="display-4 text-success fw-bold">Dashboard DeliGreen</h1>
+            <h1 class="display-4 text-success fw-bold">Dashboard PT Duta Kencana Swaguna</h1>
             <p class="lead text-muted">Selamat datang di sistem pemesanan makanan sehat.</p>
         </div>
     </div>

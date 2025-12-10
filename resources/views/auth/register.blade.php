@@ -4,7 +4,7 @@
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
   <div class="card shadow-sm border-0" style="max-width: 400px; width: 100%;">
     <div class="card-body p-4">
-      <h2 class="text-success fw-bold mb-4 text-center">Daftar DeliGreen</h2>
+      <h2 class="text-success fw-bold mb-4 text-center">Daftar PT Duta Kencana Swaguna</h2>
       <p class="text-muted text-center mb-4">Buat akun baru untuk mulai pesan makanan sehat.</p>
 
       <form method="POST" action="{{ route('register.verify') }}">

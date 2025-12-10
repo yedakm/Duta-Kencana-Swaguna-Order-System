@@ -307,7 +307,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('masuk12345'),
             'role' => 'admin',
             'phone' => '08123456789',
-            'address' => 'Kantor Pusat DeliGreen',
+            'address' => 'Kantor Pusat PT Duta Kencana Swaguna',
             'email_verified_at' => now(),
         ]);
 

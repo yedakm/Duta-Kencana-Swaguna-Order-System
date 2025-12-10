@@ -5,7 +5,7 @@
         <form action="{{ route('login') }}" method="POST">
           @csrf
           <div class="modal-header">
-            <h5 class="modal-title" id="loginModalLabel">Login ke DeliGreen</h5>
+            <h5 class="modal-title" id="loginModalLabel">Login ke PT Duta Kencana Swaguna</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
           </div>
           <div class="modal-body">
