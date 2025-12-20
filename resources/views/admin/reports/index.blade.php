@@ -106,7 +106,85 @@
                 </div>
             </div>
         </a>
+<a href="javascript:void(0);" onclick="loadReport('sales-period')" class="text-decoration-none text-dark">
+            <div class="col-md-6 mb-4">
+                <div class="card border-start border-danger shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">📅 Laporan Penjualan per Periode</h5>
+                                <p class="card-text text-muted">
+                                    Lihat transaksi berdasarkan rentang tanggal tertentu.
+                                </p>
+                            </div>
+                            <div class="fs-1 text-danger">
+                                <i class="fas fa-calendar-alt"></i> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
 
+
+<div class="card shadow-sm mb-4 animate__animated animate__fadeIn">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 text-primary fw-bold">🔍 Filter Penjualan Berdasarkan Tanggal</h5>
+    </div>
+    <div class="card-body">
+        <form id="filterForm">
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label for="start_date" class="form-label fw-bold">Dari Tanggal</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="end_date" class="form-label fw-bold">Sampai Tanggal</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i> Tampilkan Data
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="sales-result-container"></div>
+
+<script>
+    $('#filterForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        let startDate = $('#start_date').val();
+        let endDate = $('#end_date').val();
+
+        if(!startDate || !endDate) {
+            alert('Harap pilih rentang tanggal!');
+            return;
+        }
+
+        // Tampilkan loading
+        $('#sales-result-container').html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Memuat data...</p></div>');
+
+        $.ajax({
+            url: "{{ route('admin.reports.filter-sales') }}",
+            type: "GET",
+            data: {
+                start_date: startDate,
+                end_date: endDate
+            },
+            success: function(response) {
+                $('#sales-result-container').html(response).hide().fadeIn();
+            },
+            error: function(xhr) {
+                $('#sales-result-container').html('<div class="alert alert-danger">Terjadi kesalahan saat memuat data.</div>');
+            }
+        });
+    });
+</script>
         <div id="report-detail" class="mt-5"></div>
 
         <script>

@@ -52,8 +52,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('orders', AdminOrderController::class);
     Route::resource('users', AdminUserController::class);
-    Route::resource('reports', AdminReportController::class);
     Route::get('/reports/load/{type}', [AdminReportController::class, 'load'])->name('reports.load');
+    // TAMBAHKAN INI: Route untuk memproses filter tanggal
+    Route::get('/reports/filter-sales', [AdminReportController::class, 'filterSales'])->name('reports.filter-sales');
+        Route::resource('reports', AdminReportController::class);
+
 });
 
 // --- ROUTES MEMBER / USER ---

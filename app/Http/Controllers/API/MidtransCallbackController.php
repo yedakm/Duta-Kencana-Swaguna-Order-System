@@ -37,7 +37,7 @@ class MidtransCallbackController extends Controller
         }
 
         // Logic Status Midtrans
-        if ($transactionStatus == 'capture') {
+       if ($transactionStatus == 'capture') {
             if ($type == 'credit_card') {
                 if ($fraud == 'challenge') {
                     $this->updateStatus($order, 'pending');
@@ -51,36 +51,63 @@ class MidtransCallbackController extends Controller
             $this->updateStatus($order, 'pending');
         } else if ($transactionStatus == 'deny' || $transactionStatus == 'expire' || $transactionStatus == 'cancel') {
             $this->updateStatus($order, 'canceled');
+        } 
+        // --- TAMBAHAN BARU UNTUK REFUND ---
+        else if ($transactionStatus == 'refund' || $transactionStatus == 'partial_refund') {
+            $this->updateStatus($order, 'refunded', $type);
         }
+        // ----------------------------------
 
         return response(['message' => 'Callback received successfully']);
     }
 
     // Fungsi Helper untuk Update Data dan Poin
-    private function updateStatus($order, $status, $paymentMethod = null)
+   private function updateStatus($order, $status, $paymentMethod = null)
     {
-        // Cek dulu apakah statusnya berubah dari yang lama
         if ($order->status != $status) {
             
+            // Simpan status lama untuk pengecekan
+            $oldStatus = $order->status;
+
             // 1. Update Order
             $order->update(['status' => $status]);
 
             // 2. Update Transaksi
             $trx = Transaction::where('order_id', $order->id)->first();
             if ($trx) {
-                $paymentStatus = ($status == 'completed') ? 'paid' : $status;
+                // Mapping status pembayaran
+                $payStatus = match($status) {
+                    'completed' => 'paid',
+                    'refunded' => 'refunded',
+                    default => $status
+                };
+                
                 $trx->update([
-                    'payment_status' => $paymentStatus,
+                    'payment_status' => $payStatus,
                     'payment_method' => $paymentMethod ?? 'midtrans',
-                    'transaction_date' => now()
+                    'updated_at' => now()
                 ]);
             }
 
-            // 3. TAMBAH POIN USER (Hanya jika status berubah jadi Completed)
-            if ($status == 'completed') {
-                $user = $order->user;
-                if ($user) {
-                    $user->point += $order->total_price * 0.1; // Logika poin Anda
+            // 3. LOGIKA POIN (Tambah atau Tarik Kembali)
+            $user = $order->user;
+            if ($user) {
+                $points = $order->total_price * 0.1; // Rumus poin Anda
+
+                // A. Jika status jadi COMPLETED -> Tambah Poin
+                if ($status == 'completed' && $oldStatus != 'completed') {
+                    $user->point += $points;
+                    $user->save();
+                }
+
+                // B. Jika status jadi REFUNDED -> Tarik Poin Kembali
+                if ($status == 'refunded' && $oldStatus == 'completed') {
+                    // Cek biar poin tidak minus (opsional)
+                    if ($user->point >= $points) {
+                        $user->point -= $points;
+                    } else {
+                        $user->point = 0;
+                    }
                     $user->save();
                 }
             }
