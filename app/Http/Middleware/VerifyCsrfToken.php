@@ -12,6 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'midtrans-callback',      // Route untuk callback
+        'api/midtrans-callback',  // Opsional jika pakai prefix api
+        'payment/success/*',      // Opsional (terkadang dibutuhkan)
     ];
 }

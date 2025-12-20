@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentController; // <--- TAMBAHAN BARU
 
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\FoodController as AdminFoodController;
@@ -26,11 +27,6 @@ use Illuminate\Support\Facades\Broadcast;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::get('/', [DashboardController::class, 'indexGuest'])->middleware('blockIfLoggedIn')->name('welcome');
@@ -40,6 +36,7 @@ Route::post('/register/verify', [AuthController::class, 'registerProcess'])->nam
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// --- ROUTES GUEST ---
 Route::prefix('guest')->name('guest.')->middleware('blockIfLoggedIn')->group(function () {
     Route::get('/foods', [GuestFoodController::class, 'index'])->name('foods.index');
     Route::get('/categories', [GuestCategoryController::class, 'index'])->name('categories.index');
@@ -48,6 +45,7 @@ Route::prefix('guest')->name('guest.')->middleware('blockIfLoggedIn')->group(fun
     Route::get('/reports', fn() => redirect('/register'))->name('reports.index');
 });
 
+// --- ROUTES ADMIN ---
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'indexAdmin'])->name('dashboard');
     Route::resource('foods', AdminFoodController::class);
@@ -58,6 +56,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/reports/load/{type}', [AdminReportController::class, 'load'])->name('reports.load');
 });
 
+// --- ROUTES MEMBER / USER ---
 Route::prefix('user')->name('member.')->middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'indexCustomer'])->name('dashboard');
     Route::get('/foods', [UserFoodController::class, 'memberIndex'])->name('foods.index');
@@ -74,10 +73,20 @@ Route::prefix('user')->name('member.')->middleware('auth')->group(function () {
     Route::post('/orders/update', [UserOrderItemController::class, 'updateCart'])->name('orders.update');
     Route::post('/orders/checkout', [UserOrderItemController::class, 'checkout'])->name('orders.checkout');
     Route::post('/orders/clear', [UserOrderItemController::class, 'clearCart'])->name('orders.clear');
-    Route::post('/orders/{order}/pay', [UserOrderItemController::class, 'pay'])->name('orders.pay');
-
+    
+    // Route lama ini bisa dihapus/diabaikan karena kita pakai PaymentController sekarang
+    // Route::post('/orders/{order}/pay', [UserOrderItemController::class, 'pay'])->name('orders.pay');
 });
+
+// --- ROUTES PEMBAYARAN MIDTRANS (BARU) ---
+Route::middleware(['auth'])->group(function () {
+    Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::get('/payment/success/{order}', [PaymentController::class, 'success'])->name('payment.success');
+});
+
+// --- BROADCASTING & UTILS ---
 Broadcast::routes(['middleware' => ['auth']]);
+
 Route::post('/broadcasting/auth', function () {
     return response()->json(['user' => auth()->user()], 200);
 });
@@ -89,6 +98,3 @@ Route::middleware('auth')->get('/order-status/{id}', function ($id) {
 
     return response()->json(['status' => $order->status]);
 });
-
-
-

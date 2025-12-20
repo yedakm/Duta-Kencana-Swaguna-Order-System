@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\User;
-use Illuminate\Support\Str;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Food;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -14,15 +15,12 @@ class OrderItemController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
-
         $orders = Order::withCount('items')
             ->where('user_id', auth()->id())
             ->latest()
             ->get();
 
-
         $statusNotif = null;
-
         foreach (session()->all() as $key => $val) {
             if (Str::startsWith($key, 'status_updated_for_user_id_')) {
                 $userId = str_replace('status_updated_for_user_id_', '', $key);
@@ -45,12 +43,8 @@ class OrderItemController extends Controller
     public function addToCart(Request $request)
     {
         $food = Food::findOrFail($request->food_id);
-
         $cart = session()->get('cart', []);
-
-        $request->validate([
-            'orderType' => 'required|in:dine_in,takeaway',
-        ]);
+        $request->validate(['orderType' => 'required|in:dine_in,takeaway']);
 
         if (isset($cart[$food->id])) {
             $cart[$food->id]['quantity'] += 1;
@@ -62,9 +56,7 @@ class OrderItemController extends Controller
                 'orderType' => $request->orderType,
             ];
         }
-
         session()->put('cart', $cart);
-
         return back()->with('success', 'Makanan ditambahkan ke keranjang.');
     }
 
@@ -73,7 +65,6 @@ class OrderItemController extends Controller
         $cart = session()->get('cart', []);
         unset($cart[$request->food_id]);
         session()->put('cart', $cart);
-
         return back()->with('success', 'Item dihapus dari keranjang.');
     }
 
@@ -81,13 +72,10 @@ class OrderItemController extends Controller
     {
         $foodId = $request->input('food_id');
         $quantity = max(1, (int) $request->input('quantity'));
-
         $cart = session()->get('cart', []);
 
         if (!isset($cart[$foodId])) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'Item tidak ditemukan di keranjang.'], 404);
-            }
+            if ($request->expectsJson()) return response()->json(['error' => 'Item tidak ditemukan.'], 404);
             return back()->with('error', 'Item tidak ditemukan di keranjang.');
         }
 
@@ -98,16 +86,18 @@ class OrderItemController extends Controller
         $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
         if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'subtotal' => $subtotal,
-                'total' => $total,
-            ]);
+            return response()->json(['success' => true, 'subtotal' => $subtotal, 'total' => $total]);
         }
-
         return back()->with('success', 'Jumlah makanan diperbarui.');
     }
 
+    public function clearCart()
+    {
+        session()->forget('cart');
+        return back()->with('success', 'Keranjang berhasil dikosongkan.');
+    }
+
+    // --- BAGIAN CHECKOUT YANG DIUBAH ---
     public function checkout(Request $request)
     {
         $cart = session()->get('cart', []);
@@ -116,17 +106,18 @@ class OrderItemController extends Controller
             return back()->with('error', 'Keranjang Anda kosong.');
         }
 
+        // 1. Buat Order
         $order = Order::create([
             'user_id' => auth()->id(),
-            'status' => 'pending',
+            'status' => 'pending', // Default pending sampai dibayar
             'total_price' => 0,
         ]);
 
         $total = 0;
 
+        // 2. Simpan Item
         foreach ($cart as $food_id => $item) {
             $itemPrice = floatval(str_replace(',', '', $item['price']));
-
             $orderTypeValue = $item['orderType'] === 'takeaway' ? 1 : 0;
 
             OrderItem::create([
@@ -141,55 +132,21 @@ class OrderItemController extends Controller
             $total += $itemPrice * $item['quantity'];
         }
 
+        // 3. Update Total & Buat Transaksi Awal
         $order->update(['total_price' => $total]);
 
         Transaction::create([
             'invoice_id' => Str::uuid(),
             'order_id' => $order->id,
             'user_id' => auth()->id(),
-            'payment_method' => null,
+            'payment_method' => null, // Default sementara
             'amount' => $total,
             'payment_status' => 'pending',
         ]);
 
         session()->forget('cart');
 
-        return redirect()->route('member.orders.show', $order->id)->with('success', 'Checkout berhasil! Mohon lanjutkan pembayaran🙏');
-    }
-
-    public function clearCart()
-    {
-        session()->forget('cart');
-        return back()->with('success', 'Keranjang berhasil dikosongkan.');
-    }
-
-
-    public function pay(Request $request, $orderId)
-    {
-        $order = Order::findOrFail($orderId);
-
-        if ($order->user_id != auth()->id()) {
-            abort(403);
-        }
-
-        Transaction::updateOrCreate(
-            ['order_id' => $order->id],
-            [
-                'user_id' => auth()->id(),
-                'transaction_date' => now(),
-                'payment_method' => $request->payment_method,
-                'payment_status' => 'paid'
-            ]
-        );
-
-        $order->status = 'processing';
-        $order->save();
-
-        $user = $order->user;
-
-        $user->point += $order->total_price * 0.1;
-        $user->save();
-
-        return response()->json(['success' => true]);
+        // 4. Redirect ke Halaman Pembayaran (BUKAN KE SHOW)
+        return redirect()->route('payment.show', $order->id);
     }
 }
