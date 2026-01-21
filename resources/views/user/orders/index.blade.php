@@ -23,7 +23,7 @@
                     <th>Harga</th>
                     <th>Jumlah</th>
                     <th>Subtotal</th>
-                    <th>Jenis Pemesanan</th>
+                    <th>Opsi</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -43,10 +43,8 @@
                     </td>
                     <td class="subtotal" data-id="{{ $id }}">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                     <td>
-                        @if($item['orderType'] === 'dine_in')
-                            <span class="badge bg-info">Dine In</span>
-                        @elseif($item['orderType'] === 'takeaway')
-                            <span class="badge bg-secondary">Takeaway</span>
+                        @if($item['orderType'] === 'takeaway')
+                            <span class="badge bg-secondary">Order</span>
                         @else
                             <span class="badge bg-dark">-</span>
                         @endif
@@ -91,13 +89,11 @@
                 <form method="POST" action="{{ route('member.orders.remove') }}">
                     @csrf
                     <input type="hidden" name="food_id" value="{{ $id }}">
-                    <button class="btn btn-sm btn-outline-danger w-100">Hapus</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 mb-2">Hapus</button>
                 </form>
 
-                @if($item['orderType'] === 'dine_in')
-                    <span class="badge bg-info">Dine In</span>
-                @elseif($item['orderType'] === 'takeaway')
-                    <span class="badge bg-secondary">Takeaway</span>
+                @if($item['orderType'] === 'takeaway')
+                    <span class="badge bg-secondary">Order</span>
                 @else
                     <span class="badge bg-dark">-</span>
                 @endif  
@@ -143,12 +139,11 @@
     <h2 class="text-success mb-4">📦 Riwayat Pesanan Anda</h2>
 
     @if(isset($statusNotif))
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-    {{ $statusNotif }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
-
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ $statusNotif }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
 
     @if($orders->count() > 0)
     <div class="table-responsive">

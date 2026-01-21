@@ -17,7 +17,7 @@
                         <th>Harga</th>
                         <th>Jumlah</th>
                         <th>Subtotal</th>
-                        <th>Jenis Pemesanan</th>
+                        <th>Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,10 +28,8 @@
                         <td>{{ $item->quantity }}</td>
                         <td>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
                         <td>
-                            @if($item->order_type == 0)
-                                <span class="badge bg-info">Dine In</span>
-                            @elseif($item->order_type == 1)
-                                <span class="badge bg-secondary">Takeaway</span>
+                            @if($item->order_type == 1)
+                                <span class="badge bg-secondary">Order</span>
                             @else
                                 <span class="badge bg-dark">-</span>
                             @endif

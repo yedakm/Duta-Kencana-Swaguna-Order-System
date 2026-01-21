@@ -15,11 +15,9 @@
                     <p class="fs-5">Silakan pilih opsi pemesanan Anda:</p>
                 </div>
                 <div class="d-grid gap-3">
-                    <button class="btn btn-success btn-lg py-3 select-order-type" id="dineInBtn" data-type="dine_in">
-                        <i class="fas fa-store me-2"></i> Dine In
-                    </button>
-                    <button class="btn btn-outline-success btn-lg py-3 select-order-type" id="takeawayBtn" data-type="takeaway">
-                        <i class="fas fa-shopping-bag me-2"></i> Takeaway
+                    <button class="btn btn-success btn-lg py-3 select-order-type" id="takeawayBtn" data-type="takeaway">
+
+                        <i class="fas fa-shopping-bag me-2"></i> Order
                     </button>
                 </div>
             </div>
@@ -205,7 +203,6 @@
         border-color: #ced4da;
     }
     
-    /* Card image overlay for consistency */
     .card-img-top {
         border-top-left-radius: 12px !important;
         border-top-right-radius: 12px !important;
@@ -228,7 +225,6 @@
         font-weight: 500;
     }
     
-    /* Pagination styling */
     .pagination .page-link {
         color: #000000;
         border: 1px solid #dee2e6;
@@ -244,7 +240,6 @@
         background-color: #e9ecef;
     }
     
-    /* Responsive adjustments */
     @media (max-width: 768px) {
         .input-group-text, .form-select, .form-control {
             font-size: 1rem !important;
